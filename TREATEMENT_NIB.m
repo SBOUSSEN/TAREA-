@@ -9,8 +9,8 @@ clear all
 
 np = 15;
 
-filename='PATIENT7.mat';
-filesave='PATIENT7RESULTS'
+filename='PATIENT_NIBP.mat';
+filesave='PATIENT_NIBPRESULT'
 
  load(filename);
     labels = fieldnames(Data);
@@ -84,10 +84,14 @@ Entete(1,in) = {'OUTCOME'};
     HR=Data.FC;
  
     data(1,:) = unique(Tps);
+    
+PAs=PNI(Data.Date,Data.PNIs);
+PAm=PNI(Data.Date,Data.PNIm);
+PAd=PNI(Data.Date,Data.PNIm);
 
-    SBP=Data.PAs;
-    MBP=Data.PAm;
-    DBP=Data.PAd;
+    SBP=PAs;
+    MBP=PAm;
+    DBP=PAd;
     GCS=Data.GCS;
     Age=Data.Age;
     SAPS2=Data.SAPS2;
@@ -198,7 +202,7 @@ end
  end
              
    data(10,:)=SAPS2;    
-   data(11,:)=Data.OUTCOME;    
+        data(11,:)=Data.OUTCOME;        
        
         
     
@@ -401,6 +405,24 @@ T = 720;
         end
         
         
+end
+
+function PA=PNI(time,signal)% Example signal with discontinuities
+
+
+% Find the indices of non-zero points
+nonZeroIndices = find(signal ~= 0);
+
+% Interpolate the signal
+interpolatedSignal = zeros(size(time));
+interpolatedSignal(nonZeroIndices) = signal(nonZeroIndices);
+for i = 1:length(nonZeroIndices)-1
+    startIdx = nonZeroIndices(i);
+    endIdx = nonZeroIndices(i+1);
+    interpolatedSignal(startIdx:endIdx) = linspace(signal(startIdx), signal(endIdx), endIdx - startIdx + 1);
+end
+
+PA=interpolatedSignal;
 end
      
     
